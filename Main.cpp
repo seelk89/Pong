@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <iostream>
 #include "raylib.h"
 
 struct Ball
@@ -31,51 +32,111 @@ struct Paddle
 	}
 };
 
+void ToggleFullScreenWindow(int windowWidth, int windowHeight)
+{
+	if (!IsWindowFullscreen())
+	{
+		int monitor = GetCurrentMonitor();
+		SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
+		ToggleFullscreen();
+	} 
+	else
+	{
+		ToggleFullscreen();
+		SetWindowSize(windowWidth, windowHeight);
+	}
+
+}
+
+// For returning correct window width when fullscreen is toggled
+int GetDisplayWidth()
+{
+	if (IsWindowFullscreen())
+	{
+		int monitor = GetCurrentMonitor();
+		return GetMonitorWidth(monitor);
+	}
+	else
+	{
+		return GetScreenWidth();
+	}
+}
+
+// For returning correct window height when fullscreen is toggled
+int GetDisplayHeight()
+{
+	if (IsWindowFullscreen())
+	{
+		int monitor = GetCurrentMonitor();
+		return GetMonitorHeight(monitor);
+	}
+	else
+	{
+		return GetScreenHeight();
+	}
+}
+
 int main()
 {
-	printf("Hello from Pong!");
+	std::cout << "Hello from Pong \n\n";
 
-	InitWindow(800, 600, "Pong");
+	int screenWidth = 800;
+	int screenHeight = 600;
+
+	InitWindow(screenWidth, screenHeight, "Pong");
 	SetWindowState(FLAG_VSYNC_HINT);
 
 	Ball ball;
-	ball.x = GetScreenWidth() / 2.0f;
-	ball.y = GetScreenHeight() / 2.0f;
+	ball.x = GetDisplayWidth() / 2.0f;
+	ball.y = GetDisplayHeight() / 2.0f;
 	ball.radius = 5;
 	ball.speedX = 200;
 	ball.speedY = 200;
-
-	// 50 from the left of the screen, screen height / 2, 10 wide, 100 tall
-	Paddle leftPaddle;
-	leftPaddle.x = 50;
-	leftPaddle.y = GetScreenHeight() / 2;
-	leftPaddle.speed = 300;
-	leftPaddle.width = 10;
-	leftPaddle.height = 100;
-
-	// Screen width - 50 (so 50 from the right of the screen), etc.
-	Paddle rightPaddle;
-	rightPaddle.x = GetScreenWidth() - 50;
-	rightPaddle.y = GetScreenHeight() / 2;
-	rightPaddle.speed = 300;
-	rightPaddle.width = 10;
-	rightPaddle.height = 100;
 
 	const char* winnerText = nullptr;
 
 	while (!WindowShouldClose())
 	{
+		// 50 from the left of the screen, screen height / 2, 10 wide, 100 tall
+		Paddle leftPaddle;
+		leftPaddle.x = 50;
+		leftPaddle.y = GetDisplayHeight() / 2;
+		leftPaddle.speed = 300;
+		leftPaddle.width = 10;
+		leftPaddle.height = 100;
+
+		// Screen width - 50 (so 50 from the right of the screen), etc.
+		Paddle rightPaddle;
+		rightPaddle.x = GetDisplayWidth() - 50;
+		rightPaddle.y = GetDisplayHeight() / 2;
+		rightPaddle.speed = 300;
+		rightPaddle.width = 10;
+		rightPaddle.height = 100;
+
+		// Call fullscreen-toggle function
+		if (IsKeyPressed(KEY_F))
+		{
+			ToggleFullScreenWindow(screenWidth, screenHeight);
+		}
+
 		ball.x += ball.speedX * GetFrameTime();
 		ball.y += ball.speedY * GetFrameTime();
 
+		// For reversing ball direction when the ball hits the top of the window
 		if (ball.y < 0)
 		{
+			std::cout << GetDisplayHeight();
+			std::cout << "\n";
 			ball.y = 0;
 			ball.speedY *= -1;
 		}
-		if (ball.y > GetScreenHeight())
+
+		// For reversing ball direction when the ball hits the bottom of the window
+		if (ball.y > GetDisplayHeight())
 		{
-			ball.y = GetScreenHeight();
+			std::cout << GetDisplayHeight();
+			std::cout << "\n";
+			ball.y = GetDisplayHeight();
 			ball.speedY *= -1;
 		}
 
@@ -132,14 +193,14 @@ int main()
 		{
 			winnerText = "Right Paddle Wins!";
 		}
-		if (ball.x > GetScreenWidth())
-		{
+		if (ball.x > GetDisplayWidth())
+		{ 
 			winnerText = "Left Paddle Wins!";
 		}
 		if (winnerText && IsKeyPressed(KEY_SPACE))
 		{
-			ball.x = GetScreenWidth() / 2;
-			ball.y = GetScreenHeight() / 2;
+			ball.x = GetDisplayWidth() / 2;
+			ball.y = GetDisplayHeight() / 2;
 			ball.speedX = 200;
 			ball.speedY = 200;
 			winnerText = nullptr;
@@ -157,7 +218,7 @@ int main()
 			{
 				// 60 is font size
 				int textWidth = MeasureText(winnerText, 60);
-				DrawText(winnerText, GetScreenWidth() / 2 - textWidth / 2, GetScreenHeight() / 2 - 30, 60, GREEN);
+				DrawText(winnerText, GetDisplayWidth() / 2 - textWidth / 2, GetDisplayHeight() / 2 - 30, 60, GREEN);
 			}
 
 			DrawFPS(10, 10);
