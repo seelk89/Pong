@@ -1,80 +1,13 @@
 #include <stdio.h>
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>
+
 #include "raylib.h"
 
-struct Ball
-{
-	float x, y;
-	int speedX, speedY, radius;
-
-	void Draw()
-	{
-		DrawCircle(x, y, radius, WHITE);
-	}
-};
-
-struct Paddle
-{
-	float x, y;
-	int speed, width, height;
-
-	Rectangle GetRect()
-	{
-		return Rectangle{
-			x - width / 2, y - height / 2, 10, 100
-		};
-	}
-
-	// Draw paddle from the center of the paddle instead of the default
-	void Draw()
-	{
-		DrawRectangleRec(GetRect(), WHITE);
-	}
-};
-
-void ToggleFullScreenWindow(int windowWidth, int windowHeight)
-{
-	if (!IsWindowFullscreen())
-	{
-		int monitor = GetCurrentMonitor();
-		SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
-		ToggleFullscreen();
-	} 
-	else
-	{
-		ToggleFullscreen();
-		SetWindowSize(windowWidth, windowHeight);
-	}
-
-}
-
-// For returning correct window width when fullscreen is toggled
-int GetDisplayWidth()
-{
-	if (IsWindowFullscreen())
-	{
-		int monitor = GetCurrentMonitor();
-		return GetMonitorWidth(monitor);
-	}
-	else
-	{
-		return GetScreenWidth();
-	}
-}
-
-// For returning correct window height when fullscreen is toggled
-int GetDisplayHeight()
-{
-	if (IsWindowFullscreen())
-	{
-		int monitor = GetCurrentMonitor();
-		return GetMonitorHeight(monitor);
-	}
-	else
-	{
-		return GetScreenHeight();
-	}
-}
+#include "Ball.h"
+#include "Paddle.h"
+#include "Display.h"
 
 int main()
 {
@@ -92,8 +25,16 @@ int main()
 	ball.x = GetDisplayWidth() / 2.0f;
 	ball.y = GetDisplayHeight() / 2.0f;
 	ball.radius = 5;
-	ball.speedX = 200;
-	ball.speedY = 200;
+
+	// Seed
+	srand(time(NULL));
+
+	// Generate a number between 100 and 300 for ball speed
+	int rX = rand() % 200 + 100;
+	int rY = rand() % 200 + 100;
+
+	ball.speedX = rX;
+	ball.speedY = rY;
 
 	// 50 from the left of the screen, screen height / 2, 10 wide, 100 tall
 	Paddle leftPaddle;
@@ -165,7 +106,7 @@ int main()
 		if (CheckCollisionCircleRec(Vector2
 			{
 				ball.x, ball.y
-			}, ball.radius, leftPaddle.GetRect()))
+			}, ball.radius, GetPaddleRect(leftPaddle)))
 		{
 			// Check for handling edge case of hitting ball with the side of paddle, coursing ball to bounce back and forth
 			if (ball.speedX < 0)
@@ -179,7 +120,7 @@ int main()
 		if (CheckCollisionCircleRec(Vector2
 			{
 				ball.x, ball.y
-			}, ball.radius, rightPaddle.GetRect()))
+			}, ball.radius, GetPaddleRect(rightPaddle)))
 		{
 			// Check for handling edge case of hitting ball with the side of paddle, coursing ball to bounce back and forth
 			if (ball.speedX > 0)
@@ -211,9 +152,9 @@ int main()
 		BeginDrawing();
 			ClearBackground(BLACK);
 
-			ball.Draw();
-			leftPaddle.Draw();
-			rightPaddle.Draw();
+			DrawBall(ball);
+			DrawPaddle(leftPaddle);
+			DrawPaddle(rightPaddle);
 
 			if (winnerText)
 			{
