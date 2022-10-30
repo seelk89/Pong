@@ -80,11 +80,13 @@ int main()
 {
 	std::cout << "Hello from Pong \n\n";
 
-	int screenWidth = 800;
-	int screenHeight = 600;
+	int screenWidth = 1920;
+	int screenHeight = 1080;
 
 	InitWindow(screenWidth, screenHeight, "Pong");
-	SetWindowState(FLAG_VSYNC_HINT);
+
+	// Sync framerate to monitor refresh rate
+	//SetWindowState(FLAG_VSYNC_HINT);
 
 	Ball ball;
 	ball.x = GetDisplayWidth() / 2.0f;
@@ -93,31 +95,34 @@ int main()
 	ball.speedX = 200;
 	ball.speedY = 200;
 
+	// 50 from the left of the screen, screen height / 2, 10 wide, 100 tall
+	Paddle leftPaddle;
+	leftPaddle.x = 50;
+	leftPaddle.y = GetDisplayHeight() / 2;
+	leftPaddle.speed = 300;
+	leftPaddle.width = 10;
+	leftPaddle.height = 100;
+
+	// Screen width - 50 (so 50 from the right of the screen), etc.
+	Paddle rightPaddle;
+	rightPaddle.x = GetDisplayWidth() - 50;
+	rightPaddle.y = GetDisplayHeight() / 2;
+	rightPaddle.speed = 300;
+	rightPaddle.width = 10;
+	rightPaddle.height = 100;
+
 	const char* winnerText = nullptr;
 
 	while (!WindowShouldClose())
 	{
-		// 50 from the left of the screen, screen height / 2, 10 wide, 100 tall
-		Paddle leftPaddle;
-		leftPaddle.x = 50;
-		leftPaddle.y = GetDisplayHeight() / 2;
-		leftPaddle.speed = 300;
-		leftPaddle.width = 10;
-		leftPaddle.height = 100;
-
-		// Screen width - 50 (so 50 from the right of the screen), etc.
-		Paddle rightPaddle;
-		rightPaddle.x = GetDisplayWidth() - 50;
-		rightPaddle.y = GetDisplayHeight() / 2;
-		rightPaddle.speed = 300;
-		rightPaddle.width = 10;
-		rightPaddle.height = 100;
-
 		// Call fullscreen-toggle function
 		if (IsKeyPressed(KEY_F))
 		{
 			ToggleFullScreenWindow(screenWidth, screenHeight);
 		}
+
+		// Adjust right paddle position every loop in case of screen size change
+		rightPaddle.x = GetDisplayWidth() - 50;
 
 		ball.x += ball.speedX * GetFrameTime();
 		ball.y += ball.speedY * GetFrameTime();
@@ -125,8 +130,6 @@ int main()
 		// For reversing ball direction when the ball hits the top of the window
 		if (ball.y < 0)
 		{
-			std::cout << GetDisplayHeight();
-			std::cout << "\n";
 			ball.y = 0;
 			ball.speedY *= -1;
 		}
@@ -134,8 +137,6 @@ int main()
 		// For reversing ball direction when the ball hits the bottom of the window
 		if (ball.y > GetDisplayHeight())
 		{
-			std::cout << GetDisplayHeight();
-			std::cout << "\n";
 			ball.y = GetDisplayHeight();
 			ball.speedY *= -1;
 		}
