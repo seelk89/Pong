@@ -92,7 +92,7 @@ int main()
 			leftPaddle.y += leftPaddle.speed * GetFrameTime();
 		}
 
-		// right paddle movement
+		// Right paddle movement
 		if (IsKeyDown(KEY_UP))
 		{
 			rightPaddle.y -= rightPaddle.speed * GetFrameTime();
@@ -106,7 +106,7 @@ int main()
 		if (CheckCollisionCircleRec(Vector2
 			{
 				ball.x, ball.y
-			}, ball.radius, GetPaddleRect(leftPaddle)))
+			}, ball.radius, leftPaddle.GetRect()))
 		{
 			// Check for handling edge case of hitting ball with the side of paddle, coursing ball to bounce back and forth
 			if (ball.speedX < 0)
@@ -120,7 +120,7 @@ int main()
 		if (CheckCollisionCircleRec(Vector2
 			{
 				ball.x, ball.y
-			}, ball.radius, GetPaddleRect(rightPaddle)))
+			}, ball.radius, rightPaddle.GetRect()))
 		{
 			// Check for handling edge case of hitting ball with the side of paddle, coursing ball to bounce back and forth
 			if (ball.speedX > 0)
@@ -152,9 +152,9 @@ int main()
 		BeginDrawing();
 			ClearBackground(BLACK);
 
-			DrawBall(ball);
-			DrawPaddle(leftPaddle);
-			DrawPaddle(rightPaddle);
+			ball.Draw();
+			leftPaddle.Draw();
+			rightPaddle.Draw();
 
 			if (winnerText)
 			{

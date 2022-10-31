@@ -1,9 +1,13 @@
 #pragma once
+#include "raylib.h"
 
-typedef struct
+struct Ball
 {
 	float x, y;
 	int speedX, speedY, radius;
-} Ball;
 
-void DrawBall(Ball ball);
+	void Draw()
+	{
+		DrawCircle(x, y, radius, WHITE);
+	}
+};
